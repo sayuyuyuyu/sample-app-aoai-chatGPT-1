@@ -5,7 +5,7 @@ import { CopyRegular } from '@fluentui/react-icons'
 
 import { CosmosDBStatus } from '../../api'
 import Contoso from '../../assets/Contoso.svg'
-import { HistoryButton, ShareButton } from '../../components/common/Button'
+import { HistoryButton, ShareButton, SettingButton } from '../../components/common/Button'
 import { AppStateContext } from '../../state/AppProvider'
 
 import styles from './Layout.module.css'
@@ -15,6 +15,8 @@ const Layout = () => {
   const [copyClicked, setCopyClicked] = useState<boolean>(false)
   const [copyText, setCopyText] = useState<string>('Copy URL')
   const [shareLabel, setShareLabel] = useState<string | undefined>('Share')
+  const [hideSettingLabel, setHideSettingLabel] = useState<string>('Hide Setting')
+  const [showSettingLabel, setShowSettingLabel] = useState<string>('Show Setting')
   const [hideHistoryLabel, setHideHistoryLabel] = useState<string>('Hide chat history')
   const [showHistoryLabel, setShowHistoryLabel] = useState<string>('Show chat history')
   const [logo, setLogo] = useState('')
@@ -34,6 +36,10 @@ const Layout = () => {
   const handleCopyClick = () => {
     navigator.clipboard.writeText(window.location.href)
     setCopyClicked(true)
+  }
+  
+  const handleSettingClick = () => {
+    appStateContext?.dispatch({ type: 'TOGGLE_SETTING' })
   }
 
   const handleHistoryClick = () => {
@@ -84,6 +90,10 @@ const Layout = () => {
             </Link>
           </Stack>
           <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
+            <SettingButton
+              onClick={handleSettingClick}
+              text={appStateContext?.state?.isSettingOpen ? hideSettingLabel : showSettingLabel}
+            />
             {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
               <HistoryButton
                 onClick={handleHistoryClick}

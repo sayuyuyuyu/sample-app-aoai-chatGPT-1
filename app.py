@@ -77,6 +77,18 @@ async def favicon():
 async def assets(path):
     return await send_from_directory("static/assets", path)
 
+@bp.route('/api/save-settings', methods=['POST'])
+async def save_settings():
+    settings = await request.get_json()
+    # ここで設定を処理し、Azure OpenAIに渡すためのロジックを追加します
+    current_app.config['TEMPERATURE'] = settings.get('temperature', 0.7)
+    current_app.config['TOP_P'] = settings.get('topP', 0.9)
+    current_app.config['AI_SEARCH_ENABLED'] = settings.get('aiSearchEnabled', False)
+    current_app.config['DATA_RESPONSE_LIMIT_ENABLED'] = settings.get('dataResponseLimitEnabled', False)
+    current_app.config['TOP_K'] = settings.get('topK', 5)
+    current_app.config['STRICTNESS'] = settings.get('strictness', 1)
+    return jsonify({'status': 'success'})
+
 
 # Debug settings
 DEBUG = os.environ.get("DEBUG", "false")
@@ -245,9 +257,9 @@ def prepare_model_args(request_body, request_headers):
 
     model_args = {
         "messages": messages,
-        "temperature": app_settings.azure_openai.temperature,
+        "temperature": current_app.config.get('TEMPERATURE', app_settings.azure_openai.temperature),
         "max_tokens": app_settings.azure_openai.max_tokens,
-        "top_p": app_settings.azure_openai.top_p,
+        "top_p": current_app.config.get('TOP_P', app_settings.azure_openai.top_p),
         "stop": app_settings.azure_openai.stop_sequence,
         "stream": app_settings.azure_openai.stream,
         "model": app_settings.azure_openai.model,
@@ -262,6 +274,12 @@ def prepare_model_args(request_body, request_headers):
                 )
             ]
         }
+        
+        if current_app.config.get('AI_SEARCH_ENABLED', False):
+            model_args["extra_body"]["data_sources"][0]["parameters"]["in_scope"] = current_app.config.get('DATA_RESPONSE_LIMIT_ENABLED', False)
+            model_args["extra_body"]["data_sources"][0]["parameters"]["strictness"] = current_app.config.get('STRICTNESS', 1)
+            model_args["extra_body"]["data_sources"][0]["parameters"]["top_n_documents"] = current_app.config.get('TOP_K', 5)
+
 
     model_args_clean = copy.deepcopy(model_args)
     if model_args_clean.get("extra_body"):
