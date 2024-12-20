@@ -5,6 +5,8 @@ export const appStateReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case 'TOGGLE_CHAT_HISTORY':
       return { ...state, isChatHistoryOpen: !state.isChatHistoryOpen }
+    case 'TOGGLE_SETTING':
+      return { ...state, isSettingOpen: !state.isSettingOpen }
     case 'UPDATE_CURRENT_CHAT':
       return { ...state, currentChat: action.payload }
     case 'UPDATE_CHAT_HISTORY_LOADING_STATE':
