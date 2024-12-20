@@ -37,7 +37,7 @@ const Layout = () => {
     navigator.clipboard.writeText(window.location.href)
     setCopyClicked(true)
   }
-  
+
   const handleSettingClick = () => {
     appStateContext?.dispatch({ type: 'TOGGLE_SETTING' })
   }
@@ -90,10 +90,6 @@ const Layout = () => {
             </Link>
           </Stack>
           <Stack horizontal tokens={{ childrenGap: 4 }} className={styles.shareButtonContainer}>
-            <SettingButton
-              onClick={handleSettingClick}
-              text={appStateContext?.state?.isSettingOpen ? hideSettingLabel : showSettingLabel}
-            />
             {appStateContext?.state.isCosmosDBAvailable?.status !== CosmosDBStatus.NotConfigured && ui?.show_chat_history_button !== false && (
               <HistoryButton
                 onClick={handleHistoryClick}

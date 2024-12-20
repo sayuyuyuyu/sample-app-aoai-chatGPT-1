@@ -1,5 +1,5 @@
-import { useContext, useState } from 'react'
-import React from 'react'
+import { useContext, useState, useEffect } from 'react';
+import React from 'react';
 import {
   CommandBarButton,
   ContextualMenu,
@@ -13,11 +13,11 @@ import {
   Text,
   TextField,
   Checkbox
-} from '@fluentui/react'
-import { useBoolean } from '@fluentui/react-hooks'
+} from '@fluentui/react';
+import { useBoolean } from '@fluentui/react-hooks';
 
-import { AppStateContext } from '../../state/AppProvider'
-import styles from './SettingParamPanel.module.css'
+import { AppStateContext } from '../../state/AppProvider';
+import styles from './SettingParamPanel.module.css';
 
 interface SettingParamPanelProps { }
 
@@ -28,39 +28,39 @@ const commandBarStyle: ICommandBarStyles = {
     justifyContent: 'center',
     backgroundColor: 'transparent'
   }
-}
+};
 
-const commandBarButtonStyle: Partial<IStackStyles> = { root: { height: '50px' } }
+const commandBarButtonStyle: Partial<IStackStyles> = { root: { height: '50px' } };
 
 export function SettingParamPanel(_props: SettingParamPanelProps) {
-  const appStateContext = useContext(AppStateContext)
-  const [showContextualMenu, setShowContextualMenu] = React.useState(false)
-  const [hideClearAllDialog, { toggle: toggleClearAllDialog }] = useBoolean(true)
-  const [clearing, setClearing] = React.useState(false)
-  const [clearingError, setClearingError] = React.useState(false)
+  const appStateContext = useContext(AppStateContext);
+  const [showContextualMenu, setShowContextualMenu] = React.useState(false);
+  const [hideClearAllDialog, { toggle: toggleClearAllDialog }] = useBoolean(true);
+  const [clearing, setClearing] = React.useState(false);
+  const [clearingError, setClearingError] = React.useState(false);
 
   // 各種パラメータの状態
-  const [temperature, setTemperature] = useState(0.7)
-  const [topP, setTopP] = useState(0.9)
-  const [aiSearchEnabled, setAiSearchEnabled] = useState(false)
-  const [dataResponseLimitEnabled, setDataResponseLimitEnabled] = useState(false)
-  const [topK, setTopK] = useState(5)
-  const [strictness, setStrictness] = useState(1)
+  const [temperature, setTemperature] = useState(0.7);
+  const [topP, setTopP] = useState(0.9);
+  const [aiSearchEnabled, setAiSearchEnabled] = useState(false);
+  const [dataResponseLimitEnabled, setDataResponseLimitEnabled] = useState(false);
+  const [topK, setTopK] = useState(5);
+  const [strictness, setStrictness] = useState(1);
 
   const menuItems: IContextualMenuItem[] = [
     { key: 'clearAll', text: 'Reset all settings', iconProps: { iconName: 'Delete' } }
-  ]
+  ];
 
   const onShowContextualMenu = React.useCallback((ev: React.MouseEvent<HTMLElement>) => {
-    ev.preventDefault() // don't navigate
-    setShowContextualMenu(true)
-  }, [])
+    ev.preventDefault(); // don't navigate
+    setShowContextualMenu(true);
+  }, []);
 
-  const onHideContextualMenu = React.useCallback(() => setShowContextualMenu(false), [])
+  const onHideContextualMenu = React.useCallback(() => setShowContextualMenu(false), []);
 
   const handleSettingClick = () => {
-    appStateContext?.dispatch({ type: 'TOGGLE_SETTING' })
-  }
+    appStateContext?.dispatch({ type: 'TOGGLE_SETTING' });
+  };
 
   const saveSettings = async () => {
     const settings = {
@@ -70,7 +70,7 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
       dataResponseLimitEnabled,
       topK,
       strictness
-    }
+    };
 
     try {
       const response = await fetch('/api/save-settings', {
@@ -90,7 +90,7 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
       console.error('Error saving settings:', error);
       alert('Error saving settings');
     }
-  }
+  };
 
   return (
     <section className={styles.container} data-is-scrollable aria-label={'setting parameter panel'}>
@@ -100,26 +100,6 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
             Settings
           </Text>
         </StackItem>
-        <Stack verticalAlign="start">
-          <Stack horizontal styles={commandBarButtonStyle}>
-            <ContextualMenu
-              items={menuItems}
-              hidden={!showContextualMenu}
-              target={'#moreButton'}
-              onItemClick={toggleClearAllDialog}
-              onDismiss={onHideContextualMenu}
-            />
-            <CommandBarButton
-              iconProps={{ iconName: 'Cancel' }}
-              title={'Hide'}
-              onClick={handleSettingClick}
-              aria-label={'hide button'}
-              styles={commandBarStyle}
-              role="button"
-              id="moreButton"
-            />
-          </Stack>
-        </Stack>
       </Stack>
       <Stack aria-label="setting parameter panel content" styles={{ root: { padding: '0 20px' } }}>
         <Stack className={styles.settingParamListContainer} styles={{ root: { marginBottom: '20px' } }}>
@@ -212,5 +192,5 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
       </Stack>
       <PrimaryButton onClick={saveSettings} text="Save Settings" styles={{ root: { margin: '20px' } }} />
     </section>
-  )
+  );
 }
