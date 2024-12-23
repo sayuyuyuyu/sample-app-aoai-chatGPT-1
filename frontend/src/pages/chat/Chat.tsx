@@ -220,9 +220,26 @@ const Chat = () => {
     appStateContext?.dispatch({ type: 'UPDATE_CURRENT_CHAT', payload: conversation })
     setMessages(conversation.messages)
 
-    const request: ConversationRequest = {
+    let request: ConversationRequest = {
       messages: [...conversation.messages.filter(answer => answer.role !== ERROR)]
     }
+
+    const storedSettings = localStorage.getItem('settings');
+    if (storedSettings) {
+      const settings = JSON.parse(storedSettings);
+      const temperature = settings.temperature
+      const topP = settings.topP
+      const aiSearchEnabled = settings.aiSearchEnabled
+      const dataResponseLimitEnabled = settings.dataResponseLimitEnabled
+      const topK = settings.topK
+      const strictness = settings.strictness
+
+      request = {
+        messages: [...conversation.messages.filter(answer => answer.role !== ERROR)],
+        customParams: { temperature, topP, aiSearchEnabled, dataResponseLimitEnabled, topK, strictness }
+      }
+    }
+
 
     let result = {} as ChatResponse
     try {

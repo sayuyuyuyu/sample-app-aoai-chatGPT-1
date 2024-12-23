@@ -13,10 +13,8 @@ from quart import (
     request,
     send_from_directory,
     render_template,
-    current_app,
-    session
+    current_app
 )
-from quart_session import Session
 
 from openai import AsyncAzureOpenAI
 from azure.identity.aio import (
@@ -43,12 +41,9 @@ bp = Blueprint("routes", __name__, static_folder="static",
 
 cosmos_db_ready = asyncio.Event()
 
-session_app = Session()
-
 
 def create_app():
     app = Quart(__name__)
-    session_app.init_app(app)  # セッションの初期化
     app.register_blueprint(bp)
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
@@ -82,24 +77,6 @@ async def favicon():
 @bp.route("/assets/<path:path>")
 async def assets(path):
     return await send_from_directory("static/assets", path)
-
-
-@bp.route('/api/save-settings', methods=['POST'])
-async def save_settings():
-    settings = await request.get_json()
-
-    logging.debug(f"Received settings: {settings}")
-
-    # セッションに設定を保存する
-    session['TEMPERATURE'] = settings.get('temperature', 0.7)
-    session['TOP_P'] = settings.get('topP', 0.9)
-    session['AI_SEARCH_ENABLED'] = settings.get('aiSearchEnabled', False)
-    session['DATA_RESPONSE_LIMIT_ENABLED'] = settings.get(
-        'dataResponseLimitEnabled', False)
-    session['TOP_K'] = settings.get('topK', 5)
-    session['STRICTNESS'] = settings.get('strictness', 1)
-
-    return jsonify({'status': 'success'})
 
 # Debug settings
 DEBUG = os.environ.get("DEBUG", "false")
@@ -270,16 +247,11 @@ def prepare_model_args(request_body, request_headers):
         user_json = get_msdefender_user_json(
             authenticated_user_details, request_headers, conversation_id, application_name)
 
-    # セッションから設定を取得
-    temperature = session.get(
-        'TEMPERATURE', app_settings.azure_openai.temperature)
-    top_p = session.get('TOP_P', app_settings.azure_openai.top_p)
-
     model_args = {
         "messages": messages,
-        "temperature": temperature,
+        "temperature": app_settings.azure_openai.temperature,
         "max_tokens": app_settings.azure_openai.max_tokens,
-        "top_p": top_p,
+        "top_p": app_settings.azure_openai.top_p,
         "stop": app_settings.azure_openai.stop_sequence,
         "stream": app_settings.azure_openai.stream,
         "model": app_settings.azure_openai.model,
@@ -295,13 +267,22 @@ def prepare_model_args(request_body, request_headers):
             ]
         }
 
-        if session.get('AI_SEARCH_ENABLED', False):  # セッションから AI_SEARCH_ENABLED を取得
-            model_args["extra_body"]["data_sources"][0]["parameters"]["in_scope"] = session.get(
-                'DATA_RESPONSE_LIMIT_ENABLED', False)
-            model_args["extra_body"]["data_sources"][0]["parameters"]["strictness"] = session.get(
-                'STRICTNESS', 1)
-            model_args["extra_body"]["data_sources"][0]["parameters"]["top_n_documents"] = session.get(
-                'TOP_K', 5)
+    if request_body.get("customParams", {}):
+        customParams = request_body.get("customParams", {})
+        model_args = {
+            "messages": messages,
+            "max_tokens": app_settings.azure_openai.max_tokens,
+            "stop": app_settings.azure_openai.stop_sequence,
+            "stream": app_settings.azure_openai.stream,
+            "model": app_settings.azure_openai.model,
+            "user": user_json,
+            "temperature": customParams["temperature"],
+            "top_p": customParams["topP"]
+        }
+        if customParams["aiSearchEnabled"]:
+            model_args["extra_body"]["data_sources"][0]["parameters"]["in_scope"] = customParams["dataResponseLimitEnabled"]
+            model_args["extra_body"]["data_sources"][0]["parameters"]["strictness"] = customParams["topK"]
+            model_args["extra_body"]["data_sources"][0]["parameters"]["top_n_documents"] = customParams["strictness"]
         else:
             # AI_SEARCH_ENABLED が False の場合は extra_body を削除
             model_args.pop("extra_body", None)

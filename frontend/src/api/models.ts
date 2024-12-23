@@ -84,8 +84,18 @@ export type ChatResponse = {
   error?: any
 }
 
+export type customParam = {
+  temperature: number
+  topP: number
+  aiSearchEnabled: boolean
+  dataResponseLimitEnabled: boolean
+  topK: number
+  strictness: number
+}
+
 export type ConversationRequest = {
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  customParams?: customParam
 }
 
 export type UserInfo = {

@@ -89,24 +89,7 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
     // ローカルストレージに保存
     localStorage.setItem('settings', JSON.stringify(settings));
 
-    try {
-      const response = await fetch('/api/save-settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(settings)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save settings');
-      }
-
-      alert('設定を更新しました。');
-    } catch (error) {
-      console.error('Error saving settings:', error);
-      alert('Error saving settings');
-    }
+    alert('設定を更新しました。');
   };
 
   return (
