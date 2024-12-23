@@ -288,8 +288,8 @@ def prepare_model_args(request_body, request_headers):
         }
         if customParams["aiSearchEnabled"]:
             model_args["extra_body"]["data_sources"][0]["parameters"]["in_scope"] = customParams["dataResponseLimitEnabled"]
-            model_args["extra_body"]["data_sources"][0]["parameters"]["strictness"] = customParams["topK"]
-            model_args["extra_body"]["data_sources"][0]["parameters"]["top_n_documents"] = customParams["strictness"]
+            model_args["extra_body"]["data_sources"][0]["parameters"]["strictness"] = customParams["strictness"]
+            model_args["extra_body"]["data_sources"][0]["parameters"]["top_n_documents"] = customParams["topK"]
         else:
             # AI_SEARCH_ENABLED が False の場合は extra_body を削除
             model_args.pop("extra_body", None)
