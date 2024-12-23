@@ -279,6 +279,13 @@ def prepare_model_args(request_body, request_headers):
             "temperature": customParams["temperature"],
             "top_p": customParams["topP"]
         }
+        model_args["extra_body"] = {
+            "data_sources": [
+                app_settings.datasource.construct_payload_configuration(
+                    request=request
+                )
+            ]
+        }
         if customParams["aiSearchEnabled"]:
             model_args["extra_body"]["data_sources"][0]["parameters"]["in_scope"] = customParams["dataResponseLimitEnabled"]
             model_args["extra_body"]["data_sources"][0]["parameters"]["strictness"] = customParams["topK"]
