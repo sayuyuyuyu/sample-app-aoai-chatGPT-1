@@ -62,6 +62,20 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
     appStateContext?.dispatch({ type: 'TOGGLE_SETTING' });
   };
 
+  // コンポーネントがマウントされたときにローカルストレージから設定を取得
+  useEffect(() => {
+    const storedSettings = localStorage.getItem('settings');
+    if (storedSettings) {
+      const settings = JSON.parse(storedSettings);
+      setTemperature(settings.temperature || 0.7);
+      setTopP(settings.topP || 0.9);
+      setAiSearchEnabled(settings.aiSearchEnabled || false);
+      setDataResponseLimitEnabled(settings.dataResponseLimitEnabled || false);
+      setTopK(settings.topK || 5);
+      setStrictness(settings.strictness || 1);
+    }
+  }, []);
+
   const saveSettings = async () => {
     const settings = {
       temperature,
@@ -71,6 +85,9 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
       topK,
       strictness
     };
+
+    // ローカルストレージに保存
+    localStorage.setItem('settings', JSON.stringify(settings));
 
     try {
       const response = await fetch('/api/save-settings', {
