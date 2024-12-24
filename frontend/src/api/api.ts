@@ -123,11 +123,13 @@ export const historyGenerate = async (
   if (convId) {
     body = JSON.stringify({
       conversation_id: convId,
-      messages: options.messages
+      messages: options.messages,
+      customParams: options.customParams
     })
   } else {
     body = JSON.stringify({
-      messages: options.messages
+      messages: options.messages,
+      customParams: options.customParams
     })
   }
   const response = await fetch('/history/generate', {
