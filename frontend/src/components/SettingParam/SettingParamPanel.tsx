@@ -109,15 +109,15 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
             value={temperature.toFixed(2)} // 小数点以下2桁まで表示
             onChange={(e, newValue) => {
               const value = parseFloat(newValue || '0');
-              setTemperature(Math.min(Math.max(value, 0), 2)); // 範囲を0-2に制限
+              setTemperature(Math.min(Math.max(value, 0), 1)); // 範囲を0-1に制限
             }}
             step={0.01} // 小数点以下2桁まで入力可能
             min={0}
-            max={2}
+            max={1}
             styles={{ root: { marginBottom: '10px' } }}
           />
           <Text variant="small" styles={{ root: { marginBottom: '15px' } }}>
-            モデル応答の創造性を調整します。（0～2）
+            モデル応答の創造性を調整します。（0～1）
           </Text>
 
           <TextField
