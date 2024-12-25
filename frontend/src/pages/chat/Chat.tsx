@@ -341,6 +341,7 @@ const Chat = () => {
 
     let request: ConversationRequest
     let conversation
+    const storedSettings = localStorage.getItem('settings');
     if (conversationId) {
       conversation = appStateContext?.state?.chatHistory?.find(conv => conv.id === conversationId)
       if (!conversation) {
@@ -354,8 +355,6 @@ const Chat = () => {
         request = {
           messages: [...conversation.messages.filter(answer => answer.role !== ERROR)]
         }
-
-        const storedSettings = localStorage.getItem('settings');
         if (storedSettings) {
           const settings = JSON.parse(storedSettings);
           const temperature = settings.temperature
@@ -374,6 +373,20 @@ const Chat = () => {
     } else {
       request = {
         messages: [userMessage].filter(answer => answer.role !== ERROR)
+      }
+      if (storedSettings) {
+        const settings = JSON.parse(storedSettings);
+        const temperature = settings.temperature
+        const topP = settings.topP
+        const aiSearchEnabled = settings.aiSearchEnabled
+        const dataResponseLimitEnabled = settings.dataResponseLimitEnabled
+        const topK = settings.topK
+        const strictness = settings.strictness
+
+        request = {
+          messages: [userMessage].filter(answer => answer.role !== ERROR),
+          customParams: { temperature, topP, aiSearchEnabled, dataResponseLimitEnabled, topK, strictness }
+        }
       }
       setMessages(request.messages)
     }
