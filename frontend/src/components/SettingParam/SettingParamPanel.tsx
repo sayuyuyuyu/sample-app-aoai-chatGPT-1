@@ -67,7 +67,7 @@ export function SettingParamPanel(_props: SettingParamPanelProps) {
     const storedSettings = localStorage.getItem('settings');
     if (storedSettings) {
       const settings = JSON.parse(storedSettings);
-      setTemperature(settings.temperature || 0.7);
+      setTemperature(settings.temperature || 0);
       setTopP(settings.topP || 0.9);
       setAiSearchEnabled(settings.aiSearchEnabled || false);
       setDataResponseLimitEnabled(settings.dataResponseLimitEnabled || false);
